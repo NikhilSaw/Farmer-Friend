@@ -5,9 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.jsp.FarmerFriend_Team05.entity.Address;
 import com.jsp.FarmerFriend_Team05.entity.User;
-import com.jsp.FarmerFriend_Team05.repo.AddressRepo;
 import com.jsp.FarmerFriend_Team05.repo.UserRepo;
 
 @Repository
@@ -15,16 +13,9 @@ public class UserDao {
 
 	@Autowired
 	private UserRepo repo;
-	
-	@Autowired
-	private AddressRepo repo2;
 
 	public User saveUser(User user) {
 		return repo.save(user);
-	}
-
-	public Address saveAddress(Address address) {
-		return repo2.save(address);
 	}
 	
 	public User fetchUserById(int id) {
