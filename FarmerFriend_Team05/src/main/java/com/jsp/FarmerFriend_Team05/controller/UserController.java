@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.jsp.FarmerFriend_Team05.entity.Image;
 import com.jsp.FarmerFriend_Team05.entity.User;
 import com.jsp.FarmerFriend_Team05.service.UserService;
 import com.jsp.FarmerFriend_Team05.util.ResponseStructure;
@@ -22,8 +24,7 @@ public class UserController {
 	
 	@PostMapping("/saveUser")
 	public ResponseEntity<ResponseStructure<User>> saveUser(@RequestBody User user){
-		return service.saveUser(user);
-		
+		return service.saveUser(user);	
 	}
 	
 	@GetMapping("/loginUser")
@@ -36,6 +37,11 @@ public class UserController {
 		return service.sendOtp(email);
 	}
 	
+	@PostMapping("/picUpload")
+	public ResponseEntity<ResponseStructure<Image>> uploadProfilePic(@RequestParam int id, @RequestParam MultipartFile file){
+		return service.uploadProfilePic(id, file);	
+	}
+	
 	@DeleteMapping("/deleteUser")
 	public ResponseEntity<ResponseStructure<User>> deleteUser(@RequestParam int id){
 		return service.deleteUser(id);
@@ -46,7 +52,7 @@ public class UserController {
 		return service.fetchUser(id);
 	}
 	
-	@PutMapping("/updateUser")
+	@PutMapping("/editUser")
 	public ResponseEntity<ResponseStructure<User>> updateUser(@RequestBody User user){
 		return service.updateUser(user);
 	}

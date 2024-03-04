@@ -34,7 +34,9 @@ public class User {
     private String password;
     @Enumerated(EnumType.STRING)
     private UserType type;
-    
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private Image image;
     @OneToOne(cascade = CascadeType.ALL)
     private Address address;
     

@@ -12,11 +12,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.jsp.FarmerFriend_Team05.dao.ImageDao;
 import com.jsp.FarmerFriend_Team05.dao.UserDao;
+import com.jsp.FarmerFriend_Team05.entity.Image;
 import com.jsp.FarmerFriend_Team05.entity.User;
 import com.jsp.FarmerFriend_Team05.exception.EmailAlreadyRegisteredException;
 import com.jsp.FarmerFriend_Team05.exception.EmailNotSendException;
+import com.jsp.FarmerFriend_Team05.exception.ImageUploadException;
 import com.jsp.FarmerFriend_Team05.exception.PasswordMismatchException;
 import com.jsp.FarmerFriend_Team05.exception.UserNotFoundException;
 import com.jsp.FarmerFriend_Team05.util.ResponseStructure;
@@ -26,6 +30,8 @@ public class UserService {
 
 	@Autowired
 	private UserDao dao;
+	@Autowired
+	private ImageDao iDao;
 	@Autowired
 	private JavaMailSender javaMailSender;
 
@@ -113,7 +119,7 @@ public class UserService {
 				ClassPathResource banner = new ClassPathResource("Images/ForgotPassword-Banner.png");
 				helper.addInline("fpBanner", banner);
 				javaMailSender.send(message);
-				
+
 				rs.setData(otp);
 				rs.setMessage("OTP Sent Successfully");
 				rs.setStatus(HttpStatus.OK.value());
@@ -124,6 +130,27 @@ public class UserService {
 			}
 		}
 		throw new UserNotFoundException("User Not Found with E-mail = " + email);
+	}
+
+	public ResponseEntity<ResponseStructure<Image>> uploadProfilePic(int id, MultipartFile file) {
+		User db = dao.fetchUserById(id);
+		if (db != null) {
+			try {
+				Image image = new Image();
+				image.setImageName(file.getOriginalFilename());
+				image.setType(file.getContentType());
+				image.setImage(file.getBytes());
+				iDao.saveImage(image);
+				ResponseStructure<Image> rs = new ResponseStructure<Image>();
+				rs.setData(image);
+				rs.setMessage("Image Uploaded Successfully!  :)");
+				rs.setStatus(HttpStatus.OK.value());
+				return new ResponseEntity<ResponseStructure<Image>>(rs, HttpStatus.OK);
+			} catch (Exception e) {
+				throw new ImageUploadException("Failed to Upload the Image!!!  Sorry :(");
+			}
+		} else
+			throw new UserNotFoundException("User Not Found with ID = " + id);
 	}
 
 	public ResponseEntity<ResponseStructure<User>> fetchUser(int id) {
@@ -161,5 +188,5 @@ public class UserService {
 		} else
 			throw new UserNotFoundException("User Not Found with ID = " + user.getId());
 	}
-
+	
 }

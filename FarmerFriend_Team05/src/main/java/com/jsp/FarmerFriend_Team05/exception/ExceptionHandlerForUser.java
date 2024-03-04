@@ -46,4 +46,13 @@ public class ExceptionHandlerForUser {
 		return new ResponseEntity<ResponseStructure<String>>(m, HttpStatus.BAD_REQUEST);
 	}
 	
+	@ExceptionHandler(ImageUploadException.class)
+	public ResponseEntity<ResponseStructure<String>> passwordMismatch(ImageUploadException ex){
+		ResponseStructure<String> m = new ResponseStructure<String>();
+		m.setData("Error Occured while Uploading the Image please Try Again!");
+		m.setMessage(ex.getMessage());
+		m.setStatus(HttpStatus.NOT_MODIFIED.value());
+		return new ResponseEntity<ResponseStructure<String>>(m, HttpStatus.NOT_MODIFIED);
+	}
+	
 }
