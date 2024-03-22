@@ -1,5 +1,6 @@
 package com.jsp.FarmerFriend_Team05.service;
 
+import java.io.IOException;
 import java.util.Random;
 
 import jakarta.mail.MessagingException;
@@ -9,6 +10,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -42,15 +44,12 @@ public class UserService {
 			rs.setData(db);
 			rs.setMessage("User Registered Successfully !");
 			rs.setStatus(HttpStatus.CREATED.value());
-
 			try {
 				MimeMessage message = javaMailSender.createMimeMessage();
 				MimeMessageHelper helper = new MimeMessageHelper(message, true);
-
 				helper.setFrom("farmerfriendteam05@gmail.com");
 				helper.setTo(user.getEmail());
 				helper.setSubject("🌾 Welcome to Farmer Friend! 🌾");
-
 				String emailContent = "<html><body><div style='text-align: center;'>"
 						+ "<img src='cid:emailBanner' alt='Farmer Friend Banner' style='display: block; margin: 0 auto;'> </div><br>\n\n"
 						+ "<p>Dear <strong><em>" + db.getFirstName() + " " + db.getLastName()
@@ -83,8 +82,8 @@ public class UserService {
 			if (db.getPassword().equals(password)) {
 				rs.setData(db);
 				rs.setMessage("Login Successfull!");
-				rs.setStatus(HttpStatus.ACCEPTED.value());
-				return new ResponseEntity<ResponseStructure<User>>(rs, HttpStatus.ACCEPTED);
+				rs.setStatus(HttpStatus.OK.value());
+				return new ResponseEntity<ResponseStructure<User>>(rs, HttpStatus.OK);
 			} else {
 				throw new PasswordMismatchException(
 						"Incorrect Password! Please make sure you have entered the correct password. If you've forgotten your password, you can reset it using the 'Forgot Password' option on the login page.");
@@ -132,49 +131,81 @@ public class UserService {
 		throw new UserNotFoundException("User Not Found with E-mail = " + email);
 	}
 
-	public ResponseEntity<ResponseStructure<Image>> uploadProfilePic(int id, MultipartFile file) {
-		User db = dao.fetchUserById(id);
+	public ResponseEntity<ResponseStructure<Image>> uploadProfilePic(String userId, MultipartFile file) {
+		User db = dao.fetchUserById(userId);
 		if (db != null) {
-			try {
-				Image image = new Image();
-				image.setImageName(file.getOriginalFilename());
-				image.setType(file.getContentType());
-				image.setImage(file.getBytes());
-				iDao.saveImage(image);
-				ResponseStructure<Image> rs = new ResponseStructure<Image>();
-				rs.setData(image);
-				rs.setMessage("Image Uploaded Successfully!  :)");
-				rs.setStatus(HttpStatus.OK.value());
-				return new ResponseEntity<ResponseStructure<Image>>(rs, HttpStatus.OK);
-			} catch (Exception e) {
-				throw new ImageUploadException("Failed to Upload the Image!!!  Sorry :(");
+			Image image = db.getImage();
+			if (image == null) {
+				image = new Image();
 			}
-		} else
-			throw new UserNotFoundException("User Not Found with ID = " + id);
+			image.setImageName(file.getOriginalFilename());
+			image.setType(file.getContentType());
+			try {
+	            image.setImage(file.getBytes());
+	        } catch (IOException e) {
+	            throw new ImageUploadException("Failed to Upload the Image!!! Sorry :(");
+	        }
+			db.setImage(image);
+			dao.updateUser(db);
+			ResponseStructure<Image> rs = new ResponseStructure<Image>();
+			rs.setData(db.getImage());
+			rs.setMessage("Image Uploaded Successfully! :)");
+			rs.setStatus(HttpStatus.CREATED.value());
+			return new ResponseEntity<ResponseStructure<Image>>(rs, HttpStatus.CREATED);
+		} else {
+			throw new UserNotFoundException("User Not Found with ID = " + userId);
+		}
 	}
 
-	public ResponseEntity<ResponseStructure<User>> fetchUser(int id) {
+	public ResponseEntity<byte[]> fetchProfilePic(String userId) {
+		User user = dao.fetchUserById(userId);
+		if (user != null) {
+			Image image = user.getImage();
+			Image img = iDao.fetchUserImage(image.getId());
+			byte[] imageData = img.getImage();
+			return ResponseEntity.ok().contentType(MediaType.parseMediaType(img.getType())).body(imageData);
+		} else {
+			throw new UserNotFoundException("User Not Found with ID = " + userId);
+		}
+	}
+
+	public ResponseEntity<ResponseStructure<Image>> deleteProfilePic(String userId) {
+		User user = dao.fetchUserById(userId);
+		if (user != null) {
+			ResponseStructure<Image> rs = new ResponseStructure<Image>();
+			Image img = iDao.deleteUserImage(userId);
+			rs.setData(img);
+			rs.setMessage("User Profile Pic Deleted Successfully !");
+			rs.setStatus(HttpStatus.NO_CONTENT.value());
+			return new ResponseEntity<ResponseStructure<Image>>(rs, HttpStatus.NO_CONTENT);
+		} else {
+			throw new UserNotFoundException("User Not Found with ID = " + userId);
+		}
+	}
+
+	public ResponseEntity<ResponseStructure<User>> fetchUser(String userId) {
 		ResponseStructure<User> m = new ResponseStructure<User>();
-		User user = dao.fetchUserById(id);
+		User user = dao.fetchUserById(userId);
 		if (user != null) {
 			m.setData(user);
 			m.setMessage("User Fetched Successfully !");
 			m.setStatus(HttpStatus.FOUND.value());
 			return new ResponseEntity<ResponseStructure<User>>(m, HttpStatus.FOUND);
 		} else
-			throw new UserNotFoundException("User Not Found with ID = " + id);
+			throw new UserNotFoundException("User Not Found with ID = " + userId);
 	}
 
-	public ResponseEntity<ResponseStructure<User>> deleteUser(int id) {
+	public ResponseEntity<ResponseStructure<User>> deleteUser(String userId) {
 		ResponseStructure<User> rs = new ResponseStructure<User>();
-		User user = dao.deleteUserById(id);
+		User user = dao.deleteUserById(userId);
 		if (user != null) {
 			rs.setData(user);
 			rs.setMessage("User Deleted Successfully !");
-			rs.setStatus(HttpStatus.FOUND.value());
-			return new ResponseEntity<ResponseStructure<User>>(rs, HttpStatus.FOUND);
-		} else
-			throw new UserNotFoundException("User Not Found with ID = " + id);
+			rs.setStatus(HttpStatus.NO_CONTENT.value());
+			return new ResponseEntity<ResponseStructure<User>>(rs, HttpStatus.NO_CONTENT);
+		} else {
+			throw new UserNotFoundException("User Not Found with ID = " + userId);
+		}
 	}
 
 	public ResponseEntity<ResponseStructure<User>> updateUser(User user) {
@@ -183,10 +214,11 @@ public class UserService {
 		if (db != null) {
 			rs.setData(dao.updateUser(user));
 			rs.setMessage("User Updated Successfully !");
-			rs.setStatus(HttpStatus.FOUND.value());
-			return new ResponseEntity<ResponseStructure<User>>(rs, HttpStatus.FOUND);
-		} else
+			rs.setStatus(HttpStatus.OK.value());
+			return new ResponseEntity<ResponseStructure<User>>(rs, HttpStatus.OK);
+		} else {
 			throw new UserNotFoundException("User Not Found with ID = " + user.getId());
+		}
 	}
-	
+
 }

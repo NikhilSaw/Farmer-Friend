@@ -47,12 +47,48 @@ public class ExceptionHandlerForUser {
 	}
 	
 	@ExceptionHandler(ImageUploadException.class)
-	public ResponseEntity<ResponseStructure<String>> passwordMismatch(ImageUploadException ex){
+	public ResponseEntity<ResponseStructure<String>> imageUploadEx(ImageUploadException ex){
 		ResponseStructure<String> m = new ResponseStructure<String>();
 		m.setData("Error Occured while Uploading the Image please Try Again!");
 		m.setMessage(ex.getMessage());
 		m.setStatus(HttpStatus.NOT_MODIFIED.value());
 		return new ResponseEntity<ResponseStructure<String>>(m, HttpStatus.NOT_MODIFIED);
+	}
+	
+	@ExceptionHandler(ImageNotFoundException.class)
+	public ResponseEntity<ResponseStructure<String>> imageNotFound(ImageNotFoundException ex) {
+		ResponseStructure<String> m = new ResponseStructure<String>();
+		m.setData("Sorry ! :( Image Not Found");
+		m.setMessage(ex.getMessage());
+		m.setStatus(HttpStatus.NOT_FOUND.value());
+		return new ResponseEntity<ResponseStructure<String>>(m, HttpStatus.NOT_FOUND);
+	}
+	
+	@ExceptionHandler(PostNotFoundException.class)
+	public ResponseEntity<ResponseStructure<String>> postNotFound(PostNotFoundException ex) {
+		ResponseStructure<String> m = new ResponseStructure<String>();
+		m.setData("Sorry ! :( Post Not Found");
+		m.setMessage(ex.getMessage());
+		m.setStatus(HttpStatus.NOT_FOUND.value());
+		return new ResponseEntity<ResponseStructure<String>>(m, HttpStatus.NOT_FOUND);
+	}
+	
+	@ExceptionHandler(CommentNotFoundException.class)
+	public ResponseEntity<ResponseStructure<String>> commentNotFound(CommentNotFoundException ex) {
+		ResponseStructure<String> m = new ResponseStructure<String>();
+		m.setData("Sorry ! :( Comment Not Found");
+		m.setMessage(ex.getMessage());
+		m.setStatus(HttpStatus.NOT_FOUND.value());
+		return new ResponseEntity<ResponseStructure<String>>(m, HttpStatus.NOT_FOUND);
+	}
+	
+	@ExceptionHandler(EquipmentNotFoundException.class)
+	public ResponseEntity<ResponseStructure<String>> equipmentNotFound(EquipmentNotFoundException ex) {
+		ResponseStructure<String> m = new ResponseStructure<String>();
+		m.setData("Sorry ! :( Equipment Not Found");
+		m.setMessage(ex.getMessage());
+		m.setStatus(HttpStatus.NOT_FOUND.value());
+		return new ResponseEntity<ResponseStructure<String>>(m, HttpStatus.NOT_FOUND);
 	}
 	
 }

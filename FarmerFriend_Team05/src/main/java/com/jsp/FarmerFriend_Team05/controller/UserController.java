@@ -37,19 +37,29 @@ public class UserController {
 		return service.sendOtp(email);
 	}
 	
-	@PostMapping("/picUpload")
-	public ResponseEntity<ResponseStructure<Image>> uploadProfilePic(@RequestParam int id, @RequestParam MultipartFile file){
-		return service.uploadProfilePic(id, file);	
+	@PostMapping("/profilePicUpload")
+	public ResponseEntity<ResponseStructure<Image>> uploadProfilePic(@RequestParam String userId, @RequestParam MultipartFile file){
+		return service.uploadProfilePic(userId, file);	
+	}
+	
+	@GetMapping("/fetchProfilePic")
+	public ResponseEntity<byte[]> fetchProfilePic(@RequestParam String userId){
+		return service.fetchProfilePic(userId);	
+	}
+	
+	@DeleteMapping("/profilePicDelete")
+	public ResponseEntity<ResponseStructure<Image>> deleteProfilePic(@RequestParam String userId){
+		return service.deleteProfilePic(userId);	
 	}
 	
 	@DeleteMapping("/deleteUser")
-	public ResponseEntity<ResponseStructure<User>> deleteUser(@RequestParam int id){
-		return service.deleteUser(id);
+	public ResponseEntity<ResponseStructure<User>> deleteUser(@RequestParam String userId){
+		return service.deleteUser(userId);
 	}
 	
 	@GetMapping("/fetchUser")
-	public ResponseEntity<ResponseStructure<User>> fetchUser(@RequestParam int id){
-		return service.fetchUser(id);
+	public ResponseEntity<ResponseStructure<User>> fetchUser(@RequestParam String userId){
+		return service.fetchUser(userId);
 	}
 	
 	@PutMapping("/editUser")
