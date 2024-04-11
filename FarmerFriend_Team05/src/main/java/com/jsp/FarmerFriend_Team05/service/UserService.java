@@ -3,8 +3,8 @@ package com.jsp.FarmerFriend_Team05.service;
 import java.io.IOException;
 import java.util.Random;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.MimeMessageHelper;
 

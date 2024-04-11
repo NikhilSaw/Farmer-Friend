@@ -1,20 +1,28 @@
- package com.jsp.FarmerFriend_Team05.entity;
+package com.jsp.FarmerFriend_Team05.entity;
 
 import java.util.List;
 
-import org.hibernate.annotations.GenericGenerator;
-import com.jsp.FarmerFriend_Team05.enums.UserType;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.validation.constraints.*;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
+
+import com.jsp.FarmerFriend_Team05.enums.UserType;
+import com.jsp.FarmerFriend_Team05.util.CustomIdGenerator;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,9 +34,12 @@ import lombok.NoArgsConstructor;
 public class User {
 
 	@Id
-    @GeneratedValue(generator = "custom-id")
-    @GenericGenerator(name = "custom-id", type = com.jsp.FarmerFriend_Team05.util.CustomIdGenerator.class)
-    private String id;
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
+	@GenericGenerator(name = "user_seq", strategy = "com.jsp.FarmerFriend_Team05.util.CustomIdGenerator", parameters = {
+			@Parameter(name = CustomIdGenerator.INCREMENT_PARAM, value = "1"),
+			@Parameter(name = CustomIdGenerator.VALUE_PREFIX_PARAMETER, value = "User"),
+			@Parameter(name = CustomIdGenerator.NUMBER_FORMAT_PARAMETER, value = "%05d") })
+	private String id;
 
 	@NotNull(message = "First Name is Mandatory")
 	@NotBlank(message = "First Name is Mandatory")
